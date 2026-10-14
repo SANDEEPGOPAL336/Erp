@@ -1,0 +1,633 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Authentication
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\AuthController;
+
+/*
+|--------------------------------------------------------------------------
+| Student Controllers
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\AdmissionController;
+use App\Http\Controllers\Student\PersonalInformationController;
+use App\Http\Controllers\Student\QualificationController;
+use App\Http\Controllers\Student\DocumentController;
+use App\Http\Controllers\Student\RegistrationFormController;
+
+/*
+|--------------------------------------------------------------------------
+| Staff Controllers
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Staff\ApplicationVerificationController;
+use App\Http\Controllers\Staff\StaffDashboardController;
+use App\Http\Controllers\Staff\StaffAuthController;
+use App\Http\Controllers\Staff\RegisteredApplicantsController;
+
+/*
+|--------------------------------------------------------------------------
+| Admin Controllers
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminProgramGroupController;
+use App\Http\Controllers\Admin\AdminAcademicStructureController;
+use App\Http\Controllers\Admin\AdminStaffController;
+use App\Http\Controllers\Admin\AdminCourseController;
+use App\Http\Controllers\Admin\AdminStaffPermissionController;
+
+/*
+|--------------------------------------------------------------------------
+| Staff Middleware
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Middleware\StaffPermission;
+
+
+/*
+|--------------------------------------------------------------------------
+| Home
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+// Login
+Route::get('/login', [
+    AuthController::class,
+    'loginForm'
+])->name('login');
+
+Route::post('/login', [
+    AuthController::class,
+    'login'
+])->name('login.submit');
+
+
+// Registration
+Route::get('/register', [
+    AuthController::class,
+    'registerForm'
+])->name('register');
+
+Route::post('/register', [
+    AuthController::class,
+    'register'
+])->name('register.submit');
+
+
+// Logout
+Route::post('/logout', [
+    AuthController::class,
+    'logout'
+])
+->middleware('auth')
+->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Admin Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard', [
+            AdminDashboardController::class,
+            'index'
+        ])->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Program Group Management
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('program-groups')
+            ->name('program-groups.')
+            ->group(function () {
+
+                // Program Group List
+                Route::get('/', [
+                    AdminProgramGroupController::class,
+                    'index'
+                ])->name('index');
+
+                // Add Program Group
+                Route::get('/create', [
+                    AdminProgramGroupController::class,
+                    'create'
+                ])->name('create');
+
+                // Save Program Group
+                Route::post('/', [
+                    AdminProgramGroupController::class,
+                    'store'
+                ])->name('store');
+
+                // Edit Program Group
+                Route::get('/{programGroup}/edit', [
+                    AdminProgramGroupController::class,
+                    'edit'
+                ])->name('edit');
+
+                // Update Program Group
+                Route::put('/{programGroup}', [
+                    AdminProgramGroupController::class,
+                    'update'
+                ])->name('update');
+
+                // Activate / Deactivate Program Group
+                Route::patch('/{programGroup}/toggle', [
+                    AdminProgramGroupController::class,
+                    'toggle'
+                ])->name('toggle');
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Academic Structure
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('academic-structure')
+            ->name('academic-structure.')
+            ->group(function () {
+
+                // Academic Structure Dashboard
+                Route::get('/', [
+                    AdminAcademicStructureController::class,
+                    'index'
+                ])->name('index');
+
+                // Edit Course Academic Structure
+                Route::get(
+                    '/courses/{course}/edit',
+                    [
+                        AdminAcademicStructureController::class,
+                        'editCourse'
+                    ]
+                )->name('course.edit');
+
+                // Update Course Academic Structure
+                Route::put(
+                    '/courses/{course}',
+                    [
+                        AdminAcademicStructureController::class,
+                        'updateCourse'
+                    ]
+                )->name('course.update');
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Staff Management
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('staff')
+            ->name('staff.')
+            ->group(function () {
+
+                // Staff List
+                Route::get('/', [
+                    AdminStaffController::class,
+                    'index'
+                ])->name('index');
+
+                // Add Staff
+                Route::get('/create', [
+                    AdminStaffController::class,
+                    'create'
+                ])->name('create');
+
+                // Save Staff
+                Route::post('/', [
+                    AdminStaffController::class,
+                    'store'
+                ])->name('store');
+
+                // Edit Staff
+                Route::get('/{staff}/edit', [
+                    AdminStaffController::class,
+                    'edit'
+                ])->name('edit');
+
+                // Update Staff
+                Route::put('/{staff}', [
+                    AdminStaffController::class,
+                    'update'
+                ])->name('update');
+
+                // Activate / Deactivate Staff
+                Route::patch('/{staff}/toggle', [
+                    AdminStaffController::class,
+                    'toggle'
+                ])->name('toggle');
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Staff Permission Management
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('staff-permissions')
+            ->name('staff-permissions.')
+            ->group(function () {
+
+                // Permission List
+                Route::get('/', [
+                    AdminStaffPermissionController::class,
+                    'index'
+                ])->name('index');
+
+                // Edit Permission Screen
+                Route::get(
+                    '/{staffProfile}/edit',
+                    [
+                        AdminStaffPermissionController::class,
+                        'edit'
+                    ]
+                )->name('edit');
+
+                // Save Permissions
+                Route::put(
+                    '/{staffProfile}',
+                    [
+                        AdminStaffPermissionController::class,
+                        'update'
+                    ]
+                )->name('update');
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Course / Programme Management
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('courses')
+            ->name('courses.')
+            ->group(function () {
+
+                // Course List
+                Route::get('/', [
+                    AdminCourseController::class,
+                    'index'
+                ])->name('index');
+
+                // Add Course
+                Route::get('/create', [
+                    AdminCourseController::class,
+                    'create'
+                ])->name('create');
+
+                // Save Course
+                Route::post('/', [
+                    AdminCourseController::class,
+                    'store'
+                ])->name('store');
+
+                // Edit Course
+                Route::get('/{course}/edit', [
+                    AdminCourseController::class,
+                    'edit'
+                ])->name('edit');
+
+                // Update Course
+                Route::put('/{course}', [
+                    AdminCourseController::class,
+                    'update'
+                ])->name('update');
+
+                // Activate / Deactivate Course
+                Route::patch('/{course}/toggle', [
+                    AdminCourseController::class,
+                    'toggle'
+                ])->name('toggle');
+
+            });
+
+    });
+
+
+/*
+|--------------------------------------------------------------------------
+| Student Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')
+    ->prefix('student')
+    ->name('student.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Student Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard', [
+            StudentDashboardController::class,
+            'index'
+        ])->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Step 1 - Course / Programme Selection
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/admission/course', [
+            AdmissionController::class,
+            'courseForm'
+        ])->name('admission.course');
+
+        Route::post('/admission/course', [
+            AdmissionController::class,
+            'saveCourse'
+        ])->name('admission.course.save');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Step 2 - Personal Information
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/personal', [
+            PersonalInformationController::class,
+            'edit'
+        ])->name('personal');
+
+        Route::post('/personal', [
+            PersonalInformationController::class,
+            'update'
+        ])->name('personal.update');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Step 3 - Educational Qualifications
+        |--------------------------------------------------------------------------
+        */
+
+        // List Qualifications
+        Route::get('/qualifications', [
+            QualificationController::class,
+            'index'
+        ])->name('qualifications');
+
+        // Add Qualification
+        Route::post('/qualifications', [
+            QualificationController::class,
+            'store'
+        ])->name('qualifications.store');
+
+        // Edit Qualification
+        Route::get(
+            '/qualifications/{qualification}/edit',
+            [
+                QualificationController::class,
+                'edit'
+            ]
+        )->name('qualifications.edit');
+
+        // Update Qualification
+        Route::put(
+            '/qualifications/{qualification}',
+            [
+                QualificationController::class,
+                'update'
+            ]
+        )->name('qualifications.update');
+
+        // Disable Qualification
+        Route::post(
+            '/qualifications/{qualification}/disable',
+            [
+                QualificationController::class,
+                'disable'
+            ]
+        )->name('qualifications.disable');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Step 4 - Document Upload
+        |--------------------------------------------------------------------------
+        */
+
+        // Documents List
+        Route::get('/documents', [
+            DocumentController::class,
+            'index'
+        ])->name('documents');
+
+        // Upload Document
+        Route::post('/documents', [
+            DocumentController::class,
+            'store'
+        ])->name('documents.store');
+
+        // Disable Document
+        Route::post(
+            '/documents/{document}/disable',
+            [
+                DocumentController::class,
+                'disable'
+            ]
+        )->name('documents.disable');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Step 5 - Final Registration Form
+        |--------------------------------------------------------------------------
+        */
+
+        // View Final Registration Form
+        Route::get('/registration-form', [
+            RegistrationFormController::class,
+            'index'
+        ])->name('registration.form');
+
+        // Final Submit
+        Route::post('/registration-form/submit', [
+            RegistrationFormController::class,
+            'submit'
+        ])->name('registration.form.submit');
+
+    });
+
+
+/*
+|--------------------------------------------------------------------------
+| Staff Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/staff/login', [
+    StaffAuthController::class,
+    'loginForm'
+])->name('staff.login');
+
+Route::post('/staff/login', [
+    StaffAuthController::class,
+    'login'
+])->name('staff.login.submit');
+
+Route::post('/staff/logout', [
+    StaffAuthController::class,
+    'logout'
+])
+->middleware('auth')
+->name('staff.logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| Staff / Unit Teacher Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')
+    ->prefix('staff')
+    ->name('staff.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Staff Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard', [
+            StaffDashboardController::class,
+            'index'
+        ])->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Registered Applicants
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/registered-applicants', [
+            RegisteredApplicantsController::class,
+            'index'
+        ])
+        ->middleware(
+            StaffPermission::class . ':registered_applicants'
+        )
+        ->name('registered-applicants.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | New Applicants
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/applications', [
+            ApplicationVerificationController::class,
+            'index'
+        ])
+        ->middleware(
+            StaffPermission::class . ':new_applicants'
+        )
+        ->name('applications.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | View Complete Application
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/applications/{id}', [
+            ApplicationVerificationController::class,
+            'show'
+        ])
+        ->middleware(
+            StaffPermission::class . ':new_applicants'
+        )
+        ->name('applications.show');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Approve Application
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/applications/{id}/approve', [
+            ApplicationVerificationController::class,
+            'approve'
+        ])
+        ->middleware(
+            StaffPermission::class . ':new_applicants'
+        )
+        ->name('applications.approve');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reject Application
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/applications/{id}/reject', [
+            ApplicationVerificationController::class,
+            'reject'
+        ])
+        ->middleware(
+            StaffPermission::class . ':new_applicants'
+        )
+        ->name('applications.reject');
+
+    });

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><?php echo $__env->yieldContent('title', 'Admin Panel - College ERP'); ?></title>
+
+
+
+    <style>
+
+        * { box-sizing: border-box; }
+
+
+
+        html, body {
+
+            margin: 0;
+
+            padding: 0;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            background: #f5f6fa;
+
+            color: #232323;
+
+        }
+
+
+
+        body { overflow-x: hidden; }
+
+
+
+        /* ================= TOP BAR ================= */
+
+        .admin-topbar {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            height: 62px;
+
+            background: #40358f;
+
+            color: #fff;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 20px;
+
+            z-index: 1200;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+
+        }
+
+
+
+        .admin-topbar-left,
+
+        .admin-topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+        }
+
+
+
+        .admin-topbar-left { gap: 14px; }
+
+        .admin-topbar-right { gap: 12px; }
+
+
+
+        .admin-menu-btn {
+
+            width: 40px;
+
+            height: 40px;
+
+            border: 0;
+
+            background: transparent;
+
+            color: #fff;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 24px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+
+
+        .admin-menu-btn:hover { background: rgba(255,255,255,.12); }
+
+
+
+        .admin-brand {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            line-height: 1.1;
+
+        }
+
+
+
+        .admin-brand small {
+
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 10px;
+
+            font-weight: 400;
+
+            opacity: .84;
+
+        }
+
+
+
+        .admin-session-badge {
+
+            padding: 7px 11px;
+
+            border: 1px solid rgba(255,255,255,.35);
+
+            border-radius: 18px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .admin-user-name {
+
+            font-size: 12px;
+
+            white-space: nowrap;
+
+            max-width: 220px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+
+
+        .admin-logout-form { margin: 0; }
+
+
+
+        .admin-logout-btn {
+
+            border: 0;
+
+            background: #e85b66;
+
+            color: #fff;
+
+            padding: 8px 12px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .admin-logout-btn:hover { background: #d94955; }
+
+
+
+        /* ================= LAYOUT ================= */
+
+        .admin-shell {
+
+            min-height: 100vh;
+
+            padding-top: 62px;
+
+        }
+
+
+
+        .admin-content {
+            margin-left: 238px;
+            min-width: 0;
+            min-height: calc(100vh - 62px);
+            padding: 26px 30px 40px;
+            background: #f7f8fb;
+            transition: margin-left .22s ease, padding .22s ease;
+        }
+
+
+
+        /* ================= SIDEBAR SUPPORT ================= */
+
+        .admin-sidebar {
+
+            position: fixed;
+
+            left: 0;
+
+            top: 62px;
+
+            bottom: 0;
+
+            width: 238px;
+            background: linear-gradient(180deg, #191b3a 0%, #252653 55%, #202247 100%);
+            color: #e8eaff;
+            border-right: 1px solid rgba(255,255,255,.09);
+
+            overflow-y: auto;
+
+            z-index: 1100;
+
+            transition: transform .22s ease, width .22s ease;
+
+        }
+
+
+
+        .admin-sidebar::-webkit-scrollbar { width: 6px; }
+
+        .admin-sidebar::-webkit-scrollbar-thumb { background: #59618c; border-radius: 10px; }
+
+
+
+        .admin-overlay {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 62px 0 0 0;
+
+            background: rgba(0,0,0,.34);
+
+            z-index: 1050;
+
+        }
+
+
+
+        .admin-sidebar-profile {
+
+            text-align: center;
+
+            padding: 18px 10px 16px;
+
+            border-bottom: 1px solid rgba(255,255,255,.12);
+
+        }
+
+
+
+        .admin-logo {
+
+            width: 86px;
+
+            height: 86px;
+
+            margin: 0 auto 9px;
+
+            border-radius: 50%;
+
+            background: #fff;
+
+            border: 3px solid #fff;
+
+            box-shadow: 0 1px 5px rgba(0,0,0,.10);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #40358f;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .admin-profile-name {
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #f8fafc;
+
+        }
+
+
+
+        .admin-profile-role {
+
+            margin-top: 3px;
+
+            font-size: 10px;
+
+            color: #b9c0df;
+
+        }
+
+
+
+        .admin-section-title {
+            padding: 15px 12px 7px;
+            font-size: 9px;
+            color: #aeb8e8;
+            letter-spacing: 1.05px;
+
+            text-transform: uppercase;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .admin-menu-item,
+
+        .admin-menu-button {
+
+            width: 100%;
+
+            min-height: 39px;
+
+            border: 0;
+
+            background: transparent;
+
+            color: #e1e6ff;
+
+            text-decoration: none;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 9px 11px;
+
+            font-size: 12px;
+
+            cursor: pointer;
+
+            text-align: left;
+
+        }
+
+
+
+        .admin-menu-item:hover,
+
+        .admin-menu-button:hover {
+
+            background: rgba(129,140,248,.18);
+
+        }
+
+
+
+        .admin-menu-item.active,
+
+        .admin-menu-button.active {
+
+            background: #fff;
+
+            color: #40358f;
+
+            font-weight: 700;
+
+            box-shadow: inset 4px 0 0 #a5b4fc;
+
+        }
+
+
+
+        .admin-menu-item.disabled {
+            color: #9299bd;
+            cursor: default;
+        }
+
+        .admin-menu-item, .admin-menu-button { border-radius: 8px; margin: 2px 7px; width: calc(100% - 14px); }
+        .admin-menu-item:hover, .admin-menu-button:hover { background: rgba(129,140,248,.20); color: #fff; }
+        .admin-menu-item.active, .admin-menu-button.active { background: linear-gradient(90deg, #5145cd, #6557df); color: #fff; box-shadow: inset 3px 0 0 #c4b5fd, 0 4px 12px rgba(0,0,0,.12); }
+        .admin-submenu { background: rgba(4,8,30,.28); }
+        .admin-submenu .admin-menu-item { color: #cbd2f4; }
+        .admin-submenu .admin-menu-item:hover, .admin-submenu .admin-menu-item.active { color: #fff; }
+        .admin-soon { color: #c7cdef; border-color: rgba(199,205,239,.35); background: rgba(255,255,255,.06); }
+
+        /* Desktop icon-rail mode toggled by the top-left menu button. */
+        @media (min-width: 901px) {
+            .admin-shell.sidebar-collapsed .admin-sidebar { width: 76px; overflow-x: hidden; }
+            .admin-shell.sidebar-collapsed .admin-content { margin-left: 76px; }
+            .admin-shell.sidebar-collapsed .admin-sidebar-profile { padding: 14px 5px; }
+            .admin-shell.sidebar-collapsed .admin-logo { width: 48px; height: 48px; font-size: 9px; }
+            .admin-shell.sidebar-collapsed .admin-profile-name,
+            .admin-shell.sidebar-collapsed .admin-profile-role,
+            .admin-shell.sidebar-collapsed .admin-section-title,
+            .admin-shell.sidebar-collapsed .admin-menu-text,
+            .admin-shell.sidebar-collapsed .admin-menu-arrow,
+            .admin-shell.sidebar-collapsed .admin-soon { display: none !important; }
+            .admin-shell.sidebar-collapsed .admin-menu-item,
+            .admin-shell.sidebar-collapsed .admin-menu-button { justify-content: center; padding: 11px 4px; margin: 3px 7px; width: calc(100% - 14px); }
+            .admin-shell.sidebar-collapsed .admin-menu-icon { width: 24px; flex-basis: 24px; font-size: 17px; }
+            .admin-shell.sidebar-collapsed .admin-submenu { display: none !important; }
+        }
+
+
+
+        .admin-menu-icon {
+
+            width: 20px;
+
+            text-align: center;
+
+            flex: 0 0 20px;
+
+            font-size: 14px;
+
+        }
+
+
+
+        .admin-menu-text {
+
+            flex: 1;
+
+            line-height: 1.35;
+
+        }
+
+
+
+        .admin-menu-arrow {
+
+            font-size: 11px;
+
+            transition: transform .18s ease;
+
+        }
+
+
+
+        .admin-menu-button.open .admin-menu-arrow { transform: rotate(90deg); }
+
+
+
+        .admin-submenu {
+
+            display: none;
+
+            background: rgba(7,11,35,.28);
+
+        }
+
+
+
+        .admin-submenu.open { display: block; }
+
+
+
+        .admin-submenu .admin-menu-item {
+
+            padding-left: 40px;
+
+            min-height: 36px;
+
+            font-size: 11px;
+
+        }
+
+
+
+        .admin-soon {
+
+            margin-left: auto;
+
+            padding: 2px 5px;
+
+            border: 1px solid #a7a7a7;
+
+            border-radius: 10px;
+
+            font-size: 8px;
+
+            color: #777;
+
+            white-space: nowrap;
+
+        }
+
+
+
+        .admin-signout-form { margin: 0; }
+
+
+
+        /* ================= COMMON PAGE ELEMENTS ================= */
+
+        .admin-page-head {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+
+        .admin-page-head h1 {
+
+            margin: 0;
+
+            font-size: 25px;
+
+            font-weight: 700;
+
+            color: #222;
+
+        }
+
+
+
+        .admin-page-head p {
+
+            margin: 6px 0 0;
+
+            color: #717171;
+
+            font-size: 12px;
+
+        }
+
+
+
+        .admin-page-line {
+
+            height: 1px;
+
+            background: #dedede;
+
+            margin: 0 0 18px;
+
+        }
+
+
+
+        .admin-session-select {
+
+            min-width: 118px;
+
+            padding: 9px 11px;
+
+            border: 1px solid #d2d4dc;
+
+            background: #fff;
+
+            border-radius: 4px;
+
+            font-size: 11px;
+
+            color: #444;
+
+        }
+
+
+
+        .admin-panel {
+
+            background: #fff;
+
+            border: 1px solid #e6e7ec;
+
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            box-shadow: 0 2px 9px rgba(0,0,0,.04);
+
+        }
+
+
+
+        .admin-panel-header {
+
+            padding: 14px 16px;
+
+            border-bottom: 1px solid #ececf1;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+        }
+
+
+
+        .admin-panel-title {
+
+            margin: 0;
+
+            font-size: 14px;
+
+            color: #292929;
+
+        }
+
+
+
+        .admin-panel-subtitle {
+
+            font-size: 10px;
+
+            color: #858585;
+
+        }
+
+
+
+        .admin-panel-body { padding: 16px; }
+
+
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 900px) {
+
+            .admin-sidebar {
+
+                transform: translateX(-100%);
+
+            }
+
+
+
+            .admin-sidebar.open { transform: translateX(0); }
+
+            .admin-overlay.open { display: block; }
+
+
+
+            .admin-content {
+
+                margin-left: 0;
+
+                padding: 22px 16px 30px;
+
+            }
+
+
+
+            .admin-session-badge,
+
+            .admin-user-name { display: none; }
+
+        }
+
+
+
+        @media (max-width: 580px) {
+
+            .admin-topbar { padding: 0 10px; }
+
+            .admin-brand { font-size: 15px; }
+
+            .admin-page-head { flex-direction: column; }
+
+        }
+
+
+
+
+
+        /* ================= STAFF MANAGEMENT ================= */
+
+        .admin-btn {
+
+            display: inline-block;
+
+            text-decoration: none;
+
+            border: 0;
+
+            border-radius: 6px;
+
+            padding: 9px 14px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+
+
+        .admin-btn-primary { background: #5b3cae; color: #fff; }
+
+        .admin-btn-primary:hover { background: #493092; }
+
+        .admin-btn-secondary { background: #6c757d; color: #fff; }
+
+        .admin-btn-secondary:hover { background: #5c636a; }
+
+        .admin-btn-danger { background: #dc3545; color: #fff; }
+
+        .admin-btn-danger:hover { background: #bb2d3b; }
+
+        .admin-btn-success { background: #198754; color: #fff; }
+
+        .admin-btn-success:hover { background: #157347; }
+
+        .admin-btn-small { padding: 6px 9px; font-size: 10px; }
+
+
+
+        .admin-alert {
+
+            padding: 12px 15px;
+
+            border-radius: 7px;
+
+            margin-bottom: 18px;
+
+            font-size: 12px;
+
+            line-height: 1.55;
+
+        }
+
+        .admin-alert-success { background: #d1e7dd; color: #0f5132; border-left: 4px solid #198754; }
+
+        .admin-alert-danger { background: #f8d7da; color: #842029; border-left: 4px solid #dc3545; }
+
+
+
+        .admin-count-badge {
+
+            background: #f0ecfa;
+
+            color: #5b3cae;
+
+            border-radius: 16px;
+
+            padding: 7px 11px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+        }
+
+
+
+        .admin-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+
+        .admin-table th {
+
+            background: #f1eef8;
+
+            color: #5b3cae;
+
+            font-size: 10px;
+
+            text-align: left;
+
+            padding: 11px 10px;
+
+            border-bottom: 1px solid #e0dce9;
+
+        }
+
+        .admin-table td {
+
+            padding: 11px 10px;
+
+            font-size: 10px;
+
+            color: #45414c;
+
+            border-bottom: 1px solid #eceaf0;
+
+            vertical-align: middle;
+
+        }
+
+        .admin-table tr:last-child td { border-bottom: none; }
+
+        .admin-table tbody tr:hover { background: #faf9fc; }
+
+
+
+        .admin-status {
+
+            display: inline-block;
+
+            padding: 5px 8px;
+
+            border-radius: 14px;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+        }
+
+        .admin-status-active { background: #d1e7dd; color: #0f5132; }
+
+        .admin-status-inactive { background: #e2e3e5; color: #41464b; }
+
+
+
+        .admin-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+
+        .admin-empty { text-align: center; padding: 35px 15px !important; color: #777 !important; }
+
+
+
+        .admin-pagination { padding: 15px 18px; border-top: 1px solid #eceaf0; }
+
+        .admin-pagination nav { display: flex; justify-content: center; }
+
+        .admin-pagination svg { width: 16px; height: 16px; }
+
+
+
+        .admin-form-panel { max-width: 1000px; }
+
+        .admin-form-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            gap: 17px;
+
+            padding: 21px;
+
+        }
+
+        .admin-form-group label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 11px;
+
+            color: #3b3844;
+
+            font-weight: 700;
+
+        }
+
+        .admin-form-group label span { color: #dc3545; }
+
+        .admin-form-group input,
+
+        .admin-form-group select {
+
+            width: 100%;
+
+            padding: 10px 11px;
+
+            border: 1px solid #d7d5dd;
+
+            border-radius: 5px;
+
+            background: #fff;
+
+            font-size: 11px;
+
+            color: #333;
+
+            outline: none;
+
+        }
+
+        .admin-form-group input:focus,
+
+        .admin-form-group select:focus { border-color: #7b61bb; box-shadow: 0 0 0 2px rgba(91,60,174,.08); }
+
+        .admin-form-group small { display: block; margin-top: 5px; color: #777; font-size: 9px; }
+
+        .admin-check-row { padding: 0 21px 4px; font-size: 11px; color: #3f3c46; }
+
+        .admin-check-row input { margin-right: 6px; }
+
+        .admin-info-box {
+
+            margin: 13px 21px 0;
+
+            padding: 12px 14px;
+
+            background: #eef5ff;
+
+            border-left: 4px solid #3b73d1;
+
+            color: #294b7c;
+
+            border-radius: 6px;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+
+        }
+
+        .admin-form-actions {
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            gap: 8px;
+
+            padding: 18px 21px 21px;
+
+        }
+
+
+
+        @media (max-width: 800px) {
+
+            .admin-form-grid { grid-template-columns: 1fr; }
+
+            .admin-form-actions { flex-direction: column-reverse; }
+
+            .admin-form-actions .admin-btn { text-align: center; }
+
+        }
+
+
+
+</style>
+
+
+
+    <?php echo $__env->yieldPushContent('styles'); ?>
+
+</head>
+
+<body>
+
+
+
+<header class="admin-topbar">
+
+    <div class="admin-topbar-left">
+
+        <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-label="Open menu">☰</button>
+
+
+
+        <div class="admin-brand">
+
+            College ERP
+
+            <small>Administration & Management System</small>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="admin-topbar-right">
+
+        <span class="admin-session-badge">SESSION 2026-27</span>
+
+        <span class="admin-user-name"><?php echo e(auth()->user()->name); ?></span>
+
+
+
+        <form action="<?php echo e(route('logout')); ?>" method="POST" class="admin-logout-form">
+
+            <?php echo csrf_field(); ?>
+
+            <button type="submit" class="admin-logout-btn">Logout</button>
+
+        </form>
+
+    </div>
+
+</header>
+
+
+
+<div class="admin-overlay" id="adminOverlay"></div>
+
+
+
+<div class="admin-shell">
+
+    <?php echo $__env->make('admin.partials.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+
+
+    <main class="admin-content">
+
+        <?php echo $__env->yieldContent('content'); ?>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const menuBtn = document.getElementById('adminMenuBtn');
+
+        const sidebar = document.querySelector('.admin-sidebar');
+
+        const overlay = document.getElementById('adminOverlay');
+
+
+
+        const shell = document.querySelector('.admin-shell');
+
+        function toggleSidebar() {
+            if (!sidebar || !overlay || !shell) return;
+            if (window.matchMedia('(max-width: 900px)').matches) {
+                const isOpen = sidebar.classList.toggle('open');
+                overlay.classList.toggle('open', isOpen);
+                if (menuBtn) menuBtn.setAttribute('aria-expanded', String(isOpen));
+            } else {
+                const isCollapsed = shell.classList.toggle('sidebar-collapsed');
+                if (menuBtn) {
+                    menuBtn.setAttribute('aria-expanded', String(!isCollapsed));
+                    menuBtn.setAttribute('aria-label', isCollapsed ? 'Expand navigation' : 'Collapse navigation');
+                }
+            }
+        }
+
+        if (menuBtn) {
+            menuBtn.setAttribute('aria-controls', 'adminSidebar');
+            menuBtn.setAttribute('aria-expanded', 'true');
+            menuBtn.addEventListener('click', toggleSidebar);
+        }
+        if (sidebar) sidebar.id = 'adminSidebar';
+        if (overlay) overlay.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+            if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+        });
+
+
+
+        document.querySelectorAll('[data-admin-accordion]').forEach(function (button) {
+
+            button.addEventListener('click', function () {
+
+                const targetId = button.getAttribute('data-admin-accordion');
+
+                const target = document.getElementById(targetId);
+
+                if (!target) return;
+
+
+
+                button.classList.toggle('open');
+
+                target.classList.toggle('open');
+
+            });
+
+        });
+
+    });
+
+</script>
+
+
+
+<?php echo $__env->yieldPushContent('scripts'); ?>
+
+</body>
+
+</html>
+<?php /**PATH C:\Users\SANDEEP\college-erp\resources\views/admin/layouts/app.blade.php ENDPATH**/ ?>
