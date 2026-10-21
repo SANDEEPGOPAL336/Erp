@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private const COURSE_SESSION_YEAR_INDEX = 'student_enrollments_course_session_year_idx';
+
+    private const SESSION_STATUS_INDEX = 'student_enrollments_session_status_idx';
+
     public function up(): void
     {
         if (!Schema::hasTable('student_enrollments')) {
@@ -139,17 +143,39 @@ return new class extends Migration
                 |--------------------------------------------------------------------------
                 */
 
-                $table->index([
-                    'course_id',
-                    'academic_session_id',
-                    'year_number',
-                ]);
+                $table->index(
+                    ['course_id', 'academic_session_id', 'year_number'],
+                    self::COURSE_SESSION_YEAR_INDEX
+                );
 
-                $table->index([
-                    'academic_session_id',
-                    'enrollment_status',
-                ]);
+                $table->index(
+                    ['academic_session_id', 'enrollment_status'],
+                    self::SESSION_STATUS_INDEX
+                );
 
+            });
+        }
+
+        // MariaDB may have left the table behind after an earlier DDL error.
+        // Ensure the intended indexes also exist when resuming that migration.
+        $this->ensureIndex(
+            self::COURSE_SESSION_YEAR_INDEX,
+            ['course_id', 'academic_session_id', 'year_number']
+        );
+        $this->ensureIndex(
+            self::SESSION_STATUS_INDEX,
+            ['academic_session_id', 'enrollment_status']
+        );
+    }
+
+    private function ensureIndex(string $name, array $columns): void
+    {
+        $exists = collect(Schema::getIndexes('student_enrollments'))
+            ->contains(fn (array $index): bool => $index['columns'] === $columns);
+
+        if (!$exists) {
+            Schema::table('student_enrollments', function (Blueprint $table) use ($name, $columns) {
+                $table->index($columns, $name);
             });
         }
     }
